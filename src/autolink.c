@@ -22,11 +22,11 @@
 #include <ctype.h>
 
 int
-is_safe_link(const char *link, size_t link_len)
+sd_autolink_issafe(const uint8_t *link, size_t link_len)
 {
-	static const size_t valid_uris_count = 4;
+	static const size_t valid_uris_count = 5;
 	static const char *valid_uris[] = {
-		"http://", "https://", "ftp://", "mailto://"
+		"/", "http://", "https://", "ftp://", "mailto:"
 	};
 
 	size_t i;
@@ -35,7 +35,7 @@ is_safe_link(const char *link, size_t link_len)
 		size_t len = strlen(valid_uris[i]);
 
 		if (link_len > len &&
-			strncasecmp(link, valid_uris[i], len) == 0 &&
+			strncasecmp((char *)link, valid_uris[i], len) == 0 &&
 			isalnum(link[len]))
 			return 1;
 	}
@@ -44,9 +44,9 @@ is_safe_link(const char *link, size_t link_len)
 }
 
 static size_t
-autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
+autolink_delim(uint8_t *data, size_t link_end, size_t offset, size_t size)
 {
-	char cclose, copen = 0;
+	uint8_t cclose, copen = 0;
 	size_t i;
 
 	for (i = 0; i < link_end; ++i)
@@ -128,7 +128,7 @@ autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 }
 
 static size_t
-check_domain(char *data, size_t size)
+check_domain(uint8_t *data, size_t size)
 {
 	size_t i, np = 0;
 
@@ -140,21 +140,20 @@ check_domain(char *data, size_t size)
 		else if (!isalnum(data[i]) && data[i] != '-') break;
 	}
 
-	if (!isalnum(data[i - 1]) || np == 0)
-		return 0;
-
-	return i;
+	/* a valid domain needs to have at least a dot.
+	 * that's as far as we get */
+	return np ? i : 0;
 }
 
 size_t
-sd_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
+sd_autolink__www(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
 {
 	size_t link_end;
 
 	if (offset > 0 && !ispunct(data[-1]) && !isspace(data[-1]))
 		return 0;
 
-	if (size < 4 || memcmp(data, "www.", STRLEN("www.")) != 0)
+	if (size < 4 || memcmp(data, "www.", strlen("www.")) != 0)
 		return 0;
 
 	link_end = check_domain(data, size);
@@ -177,13 +176,13 @@ sd_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, 
 }
 
 size_t
-sd_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
+sd_autolink__email(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
 {
 	size_t link_end, rewind;
 	int nb = 0, np = 0;
 
 	for (rewind = 0; rewind < offset; ++rewind) {
-		char c = data[-rewind - 1];
+		uint8_t c = data[-rewind - 1];
 
 		if (isalnum(c))
 			continue;
@@ -198,7 +197,7 @@ sd_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offset
 		return 0;
 
 	for (link_end = 0; link_end < size; ++link_end) {
-		char c = data[link_end];
+		uint8_t c = data[link_end];
 
 		if (isalnum(c))
 			continue;
@@ -226,7 +225,7 @@ sd_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offset
 }
 
 size_t
-sd_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
+sd_autolink__url(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
 {
 	size_t link_end, rewind = 0, domain_len;
 
@@ -236,9 +235,9 @@ sd_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset, 
 	while (rewind < offset && isalpha(data[-rewind - 1]))
 		rewind++;
 
-	if (!is_safe_link(data - rewind, size + rewind))
+	if (!sd_autolink_issafe(data - rewind, size + rewind))
 		return 0;
-	link_end = STRLEN("://");
+	link_end = strlen("://");
 
 	domain_len = check_domain(data + link_end, size - link_end);
 	if (domain_len == 0)

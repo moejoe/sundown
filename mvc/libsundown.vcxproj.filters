@@ -9,9 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\array.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\buffer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -27,12 +24,12 @@
     <ClCompile Include="..\src\autolink.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\stack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\buffer.h">
@@ -45,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\autolink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

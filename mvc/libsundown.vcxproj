@@ -21,17 +21,17 @@
   <ItemGroup>
     <ClCompile Include="..\html\html.c" />
     <ClCompile Include="..\html\html_smartypants.c" />
-    <ClCompile Include="..\src\array.c" />
     <ClCompile Include="..\src\autolink.c" />
     <ClCompile Include="..\src\buffer.c" />
     <ClCompile Include="..\src\markdown.c" />
+    <ClCompile Include="..\src\stack.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\html\html.h" />
-    <ClInclude Include="..\src\array.h" />
     <ClInclude Include="..\src\autolink.h" />
     <ClInclude Include="..\src\buffer.h" />
     <ClInclude Include="..\src\markdown.h" />
+    <ClInclude Include="..\src\stack.h" />
     <ClInclude Include="win32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
